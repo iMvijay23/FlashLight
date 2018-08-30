@@ -11,17 +11,25 @@ import android.hardware.camera2.CameraManager;
 import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.util.Log;
-import android.widget.TextView;
+import android.widget.Toast;
 
-public class AccelerometerService extends Service implements SensorEventListener{
+public class AccelerometerService extends Service implements SensorEventListener {
     CameraManager mCameraManager;
+    SensorManager sensorManager;
+    Sensor accelerometer;
     private long lastUpdate = 0;
     private float last_x, last_y, last_z;
     private static final int SHAKE_THRESHOLD = 1000;
     private boolean isTorchEnabled = true;
     private int count = 0;
-    private TextView textView;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        mCameraManager = (CameraManager) getSystemService(CAMERA_SERVICE);
+        sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
+    }
 
     @Nullable
     @Override
@@ -31,27 +39,15 @@ public class AccelerometerService extends Service implements SensorEventListener
 
     @Override
     public void onDestroy() {
+        sensorManager.unregisterListener(this);
+        Toast.makeText(this, "Service Stopped", Toast.LENGTH_SHORT).show();
         super.onDestroy();
-        stopSelf();
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mCameraManager = MainActivity.mCameraManager;
-        textView = MainActivity.textView;
-        MainActivity.sensorManager.registerListener
-                (AccelerometerService.this,MainActivity.accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-//        Thread thread = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                Log.i("Services","thread id is : " + Thread.currentThread().getId());
-//                mCameraManager = MainActivity.mCameraManager;
-//                textView = MainActivity.textView;
-//                MainActivity.sensorManager.registerListener
-//                        (AccelerometerService.this,MainActivity.accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
-//            }
-//        });
-//        thread.start();
+        sensorManager.registerListener
+                (AccelerometerService.this, accelerometer, SensorManager.SENSOR_DELAY_NORMAL);
         return START_STICKY;
     }
 
@@ -78,7 +74,6 @@ public class AccelerometerService extends Service implements SensorEventListener
                                     isTorchEnabled = false;
                                     count = 0;
                                 }
-                                textView.setText(count + "");
                             } else {
                                 count++;
                                 if (count == 4) {
@@ -86,7 +81,6 @@ public class AccelerometerService extends Service implements SensorEventListener
                                     isTorchEnabled = true;
                                     count = 0;
                                 }
-                                textView.setText(count + "");
                             }
                         }
 
@@ -104,6 +98,7 @@ public class AccelerometerService extends Service implements SensorEventListener
     }
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy){}
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+    }
 
 }
