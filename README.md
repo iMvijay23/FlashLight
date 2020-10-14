@@ -6,3 +6,4 @@
 
 This Android applicaton enables a user to shake his mobile to switch on flash light of his mobile and to shake again to switch off
  
+Flashlight isn't the most unique name, but it's a decent flashlight app. It includes a simple UI, a quick on and off button, a widget, and you can even shake the phone to turn the flashlight on and off. Plus, it has the usual no permissions, it's free, and it has no advertising.
